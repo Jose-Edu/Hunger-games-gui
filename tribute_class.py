@@ -10,7 +10,7 @@ class tribute:
         self.power = 30 + randint(-10, 10)
         self.resistence = 0 + randint(-5, 5)
         self.sanity = 100 - randint(0, 30)
-        self.inventory = {'weapons': [], 'armor': [], 'tools': []}
+        self.inventory = {'weapons': [], 'armor': [], 'tools': [], 'resource': []}
         self.relation = []
         self.location = [3, 3]
         self.allies = []
