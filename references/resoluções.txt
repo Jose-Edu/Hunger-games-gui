@@ -1,3 +1,3 @@
-50px50p - mapa / tela com tds os tributos
-400px400p - tela para um ou dois tributos
+25px25p - mapa / tela com tds os tributos
+200px200p - tela para um ou dois tributos
 100px100p - tela para até 8 tributos
