@@ -2,10 +2,13 @@
 import funcs
 import tkinter as gui
 import os
+import buttons
 
 
 #variaveis gerais
 bg_cl = '#8B0000'
+game_mode = []
+tributes = []
 
 #criar janela e frame
 app = gui.Tk()
@@ -19,9 +22,9 @@ frame.place(width=800, height=600)
 #tela inicial
 title = gui.Label(frame, text = 'Hanger Games GUI', foreground='#000', font=('Algerian', 48), background=bg_cl)
 title.pack()
-bt_solo = gui.Button(frame, text='Solo', command=funcs.images_set)
+bt_solo = gui.Button(frame, text='Solo', command=lambda: buttons.bt_main_menu('solo', game_mode, tributes, frame))
 bt_solo.place(width=100,height=50, x = 400, y = 350, anchor='center')
-bt_districts = gui.Button(frame, text='Districts')
+bt_districts = gui.Button(frame, text='Districts', command=lambda: print(game_mode))
 bt_districts.place(width=100,height=50, x = 400, y = 450, anchor='center')
 bt_classic = gui.Button(frame, text='Classic')
 bt_classic.place(width=100,height=50, x = 400, y = 550, anchor='center')

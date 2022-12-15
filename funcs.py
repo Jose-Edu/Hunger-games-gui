@@ -30,6 +30,7 @@ def world_map():
 
 def images_set():
     path = os.path.dirname(__file__)
+    formats = {'25': [], '100': [], '200': []}
 
     for r in ('25', '100', '200'):
         for c in range(1, 25):
@@ -39,13 +40,16 @@ def images_set():
                 if os.path.exists(origin+t):
                     origin += t
                     destiny += t
+                    formats[r].append(t)
                     break
             try:
                 shutil.copyfile(origin, destiny)
             except:
                 origin = path+f'\\images\\common\\t{r}px.png'
                 destiny = path+f'\\images\\temp\\{r}px\\{c}.png'
+                formats[r].append('.png')
                 shutil.copyfile(origin, destiny)
             img = Image.open(destiny)
             _img = img.resize((int(r), int(r)))
             _img.save(destiny)
+    return formats
