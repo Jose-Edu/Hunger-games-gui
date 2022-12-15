@@ -19,7 +19,7 @@ frame.place(width=800, height=600)
 #tela inicial
 title = gui.Label(frame, text = 'Hanger Games GUI', foreground='#000', font=('Algerian', 48), background=bg_cl)
 title.pack()
-bt_solo = gui.Button(frame, text='Solo')
+bt_solo = gui.Button(frame, text='Solo', command=funcs.images_set)
 bt_solo.place(width=100,height=50, x = 400, y = 350, anchor='center')
 bt_districts = gui.Button(frame, text='Districts')
 bt_districts.place(width=100,height=50, x = 400, y = 450, anchor='center')
