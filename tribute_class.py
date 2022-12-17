@@ -1,4 +1,5 @@
 from random import randint
+from random import choice
 
 
 class tribute:
@@ -16,6 +17,8 @@ class tribute:
         self.inventory = {'weapons': [], 'armor': [], 'tools': [], 'resource': []}
         self.relation = []
         self.location = [3, 3]
+        self.actions = 3
+        self.trait = choice('antisocial', 'lucky', 'brawler', 'walker', 'greedy', 'insane', 'survival', 'reliable', 'pacifist', 'paranoid', 'healty', 'natural')
 
         for c in range(0, 24):
             self.relation.append(50+randint(-10, 10))
