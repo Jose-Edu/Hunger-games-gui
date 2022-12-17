@@ -14,10 +14,12 @@ class window_base:
     app.maxsize(800, 600)
     frame = gui.Frame(app, borderwidth=0, background=bg_cl)
     frame.place(width=800, height=600)
+    tributes = []
 
 
     def __init__(self):
         self.mm = main_menu(self)
+        self.st = show_tributes(self)
         self.mm.exec()
 
 

@@ -1,5 +1,6 @@
 import shutil, os
 from PIL import Image
+from tribute_class import tribute
 
 
 def repeat(value, number):
@@ -36,7 +37,7 @@ def images_set():
         for c in range(1, 25):
             origin = path+f'\\images\\tributes\\{c}'
             destiny = path+f'\\images\\temp\\{r}px\\{c}'
-            for t in ('.png', '.jpg', '.jpeg', '.gif', '.tiff', '.bmp'):
+            for t in ('.png', '.jpg', '.jpeg', '.gif'):
                 if os.path.exists(origin+t):
                     origin += t
                     destiny += t
@@ -45,11 +46,43 @@ def images_set():
             try:
                 shutil.copyfile(origin, destiny)
             except:
-                origin = path+f'\\images\\common\\t{r}px.png'
-                destiny = path+f'\\images\\temp\\{r}px\\{c}.png'
-                formats[r].append('.png')
+                origin = path+f'\\images\\common\\t{r}px.gif'
+                destiny = path+f'\\images\\temp\\{r}px\\{c}.gif'
+                formats[r].append('.gif')
                 shutil.copyfile(origin, destiny)
             img = Image.open(destiny)
             _img = img.resize((int(r), int(r)))
             _img.save(destiny)
-    return formats
+    for r in ('25', '100', '200'):
+        for c in range(1, 25):
+            if formats[r][c-1] != '.gif':
+                p = path+f'\\images\\temp\\{r}px\\{c}{formats[r][c-1]}'
+                i = Image.open(p)
+                i.save(path+f'\\images\\temp\\{r}px\\{c}.gif')
+                os.remove(p)
+
+def tributes_create(mode, tributes):
+    path = os.path.dirname(__file__)+'\\images'
+
+    names = []
+    n_file = open(path+'\\tributes\\tributes.txt', 'rt')
+    for c in range(0, 24):
+        names.append(n_file.readline())
+    n_file.close()
+    for c in range(0, 24):
+        names[c] = names[c].strip()
+        if names[c] == '' or names[c] == '\n':
+            names[c] = 'T'+str(c+1)
+        if names[c][(len(names[c])-3):] == '\n':
+            names[c] = names[c][:(len(names[c])-3)]
+
+    images_set()
+    imgs = {'25': [], '100': [], '200': []}
+
+    for c in ('25', '100', '200'):
+        path_imgs = path+f'\\temp\\{c}px\\'
+        for i in range(1, 25):
+            imgs[c].append(path_imgs+str(i)+'.gif')
+    for c in range(0, 24):
+
+        tributes.append(tribute(names[c], c, imgs['25'][c], imgs['100'][c], imgs['200'][c], mode))
