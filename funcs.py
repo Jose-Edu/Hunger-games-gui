@@ -55,11 +55,14 @@ def images_set():
             _img.save(destiny)
     for r in ('25', '100', '200'):
         for c in range(1, 25):
-            if formats[r][c-1] != '.gif':
+            if formats[r][c-1] != '.png' and formats[r][c-1] != '.gif':
                 p = path+f'\\images\\temp\\{r}px\\{c}{formats[r][c-1]}'
                 i = Image.open(p)
-                i.save(path+f'\\images\\temp\\{r}px\\{c}.gif')
+                i.save(path+f'\\images\\temp\\{r}px\\{c}.png')
                 os.remove(p)
+                formats[r][c-1] = '.png'
+    return formats
+
 
 def tributes_create(mode, tributes):
     path = os.path.dirname(__file__)+'\\images'
@@ -76,13 +79,13 @@ def tributes_create(mode, tributes):
         if names[c][(len(names[c])-3):] == '\n':
             names[c] = names[c][:(len(names[c])-3)]
 
-    images_set()
+    formats = images_set()
     imgs = {'25': [], '100': [], '200': []}
 
     for c in ('25', '100', '200'):
         path_imgs = path+f'\\temp\\{c}px\\'
         for i in range(1, 25):
-            imgs[c].append(path_imgs+str(i)+'.gif')
+            imgs[c].append(path_imgs+str(i)+formats[c][i-1])
     for c in range(0, 24):
 
         tributes.append(tribute(names[c], c, imgs['25'][c], imgs['100'][c], imgs['200'][c], mode))

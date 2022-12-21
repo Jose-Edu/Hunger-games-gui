@@ -1,4 +1,5 @@
 import tkinter as gui
+from tkinter import ttk as gui_ttk
 import funcs
 import os
 
@@ -12,7 +13,7 @@ class main_menu:
     def exec(self):
         self.main.reset_window()
         
-        title = gui.Label(self.main.frame, text = 'Hanger Games GUI', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
+        title = gui.Label(self.main.frame, text = 'Hunger Games GUI', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
         bt_solo = gui.Button(self.main.frame, text='Solo', command= lambda: self.main.st.exec('solo'))
         bt_solo.place(width=100,height=50, x = 400, y = 350, anchor='center')
@@ -39,9 +40,32 @@ class show_tributes:
 
         funcs.tributes_create(game_mode, self.main.tributes)
         self.main.reset_window()
-        sb = gui.Scrollbar(self.main.frame, orient='vertical')
-        sb.pack(side='right', fill='y')
-        title = gui.Label(self.main.frame, text = 'Tributos', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
+
+        my_canvas = gui.Canvas(self.main.frame)
+        my_canvas.pack(side='left', fill='both', expand='yes')
+
+        scroll = gui_ttk.Scrollbar(self.main.frame, orient='vertical', command=my_canvas.yview)
+        scroll.pack(side='right', fill='y')
+        
+        my_canvas.configure(yscrollcommand=scroll.set)
+        my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion= my_canvas.bbox('all')))
+        frame = gui.Frame(my_canvas)
+        my_canvas.create_window((0,0), window=frame, anchor='nw', width=800)
+        frame.configure(background=self.main.bg_cl)
+
+        title = gui.Label(frame, text = 'Tributes', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
-        gui.Label(self.main.frame, image=gui.PhotoImage(file=self.main.tributes[1].img_100px)).pack()
+        for c in range(0, 24, 4):
+            for i in range(0, 4):
+                if game_mode != 'solo' and i % 2 == 0:
+                    if i == 0:
+                        num = 1
+                    else:
+                        num = 2
+                    text = gui.Label(frame, text=f'District {int(c/2+num)}', font=('Arial Black', 14), background=self.main.bg_cl, foreground='#fff')
+                    text.pack()
+                img = gui.PhotoImage(file=self.main.tributes[c+i].img_100px)
+                img_label = gui.Label(frame, image=img, background=self.main.bg_cl)
+                img_label.photo = img
+                img_label.pack()
 
