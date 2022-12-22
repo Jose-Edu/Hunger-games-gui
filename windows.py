@@ -49,8 +49,11 @@ class show_tributes:
         
         my_canvas.configure(yscrollcommand=scroll.set)
         my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion= my_canvas.bbox('all')))
+        def _on_mouse_wheel(event):
+            my_canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
+        my_canvas.bind_all("<MouseWheel>", _on_mouse_wheel)
         frame = gui.Frame(my_canvas)
-        my_canvas.create_window((0,0), window=frame, anchor='nw', width=800)
+        my_canvas.create_window((0,0), window=frame, anchor='nw', width=800, height=1253)
         frame.configure(background=self.main.bg_cl)
 
         title = gui.Label(frame, text = 'Tributes', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
@@ -62,10 +65,15 @@ class show_tributes:
                         num = 1
                     else:
                         num = 2
-                    text = gui.Label(frame, text=f'District {int(c/2+num)}', font=('Arial Black', 14), background=self.main.bg_cl, foreground='#fff')
-                    text.pack()
+                    text = gui.Label(frame, text=f'District {int(c/2+num)}', font=('Arial Black', 14), background='#000', foreground='#fff')
+                    text.place(x=52+i*200, y=115+c/4*190, width=300)
+                
                 img = gui.PhotoImage(file=self.main.tributes[c+i].img_100px)
                 img_label = gui.Label(frame, image=img, background=self.main.bg_cl)
                 img_label.photo = img
-                img_label.pack()
+                img_label.place(x=50+i*200,y=150+c/4*190)
 
+                if self.main.tributes[c+i].vigour > 0:
+                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background=self.main.bg_cl, foreground='#228c22').place(x=52+i*200,y=250+c/4*190, width=100)
+                else:
+                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background=self.main.bg_cl, foreground='#000').place(x=52+i*200,y=250+c/4*190, width=100)
