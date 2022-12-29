@@ -38,6 +38,8 @@ class show_tributes:
 
     def exec(self, game_mode):
 
+        self.main.app.config(menu=self.main.menu)
+
         funcs.tributes_create(game_mode, self.main.tributes)
         self.main.reset_window()
 
