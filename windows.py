@@ -79,9 +79,9 @@ class show_tributes:
                 img_label.place(x=50+i*200,y=150+c/4*190)
 
                 if self.main.tributes[c+i].vigour > 0:
-                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background=self.main.bg_cl, foreground='#228c22').place(x=52+i*200,y=250+c/4*190, width=100)
+                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#228c22').place(x=102+i*200,y=262+c/4*190, width=160, height=20, anchor='center')
                 else:
-                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background=self.main.bg_cl, foreground='#000').place(x=52+i*200,y=250+c/4*190, width=100)
+                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#000').place(x=102+i*200,y=262+c/4*190, width=150, height=20, anchor='center')
         bt_next = gui.Button(frame, text='Next', command=lambda: self.main.game.exec(event='O banho de sangue'), width=20)
         bt_next.pack(side='bottom')
 
