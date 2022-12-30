@@ -1,2 +1,3 @@
 # Hunger games gui
- HG simulator GUI in Python!
+An HG simulator with GUI in Python!
+(wip)
