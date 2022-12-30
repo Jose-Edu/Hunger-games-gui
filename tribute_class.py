@@ -3,6 +3,7 @@ from random import choice
 
 
 class tribute:
+
     def __init__(self, name, id, img_25, img_100, img_200, mode):
         self.name = name
         self.id = id
@@ -16,12 +17,12 @@ class tribute:
         self.sanity = 100 - randint(0, 30)
         self.inventory = {'weapons': [], 'armor': [], 'tools': [], 'resource': []}
         self.relation = []
-        self.location = [0, 0]
+        self.location = [3, 3]
         self.actions = 3
         self.trait = choice(('antisocial', 'lucky', 'brawler', 'walker', 'greedy', 'insane', 'survival', 'reliable', 'pacifist', 'paranoid', 'healty', 'natural'))
 
         for c in range(0, 24):
-            self.relation.append(50+randint(-10, 10))
+            self.relation.append(50+randint(-30, 30))
         self.relation[self.id] = 50
 
         if mode != 'solo':

@@ -14,11 +14,14 @@ class window_base:
     frame.pack(fill='both', expand='yes')
     tributes = []
     menu = gui.Menu(app)
+    day = 1
+    time = 'Dia'
 
 
     def __init__(self):
         self.mm = main_menu(self)
         self.st = show_tributes(self)
+        self.game = game(self)
         self.mm.exec()
 
         self.menu = gui.Menu(self.app)
@@ -37,4 +40,20 @@ class window_base:
         path = os.path.dirname(__file__)
         exec(open(path+'\\map.py').read(), {'bg_cl': self.bg_cl, 'path': path, 'tributes': self.tributes})
 
-    
+
+    def tributes_count(self):
+        t_count = 0
+
+        for c in self.tributes:
+            if c.vigour > 0:
+                t_count += 1
+
+        return t_count
+
+
+    def day_update(self):
+        if self.time == 'Dia':
+            self.time = 'Noite'
+        else:
+            self.time = 'Dia'
+            self.day += 1
