@@ -16,7 +16,7 @@ class tribute:
         self.sanity = 100 - randint(0, 30)
         self.inventory = {'weapons': [], 'armor': [], 'tools': [], 'resource': []}
         self.relation = []
-        self.location = [3, 3]
+        self.location = [0, 0]
         self.actions = 3
         self.trait = choice(('antisocial', 'lucky', 'brawler', 'walker', 'greedy', 'insane', 'survival', 'reliable', 'pacifist', 'paranoid', 'healty', 'natural'))
 

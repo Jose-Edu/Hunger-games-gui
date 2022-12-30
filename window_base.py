@@ -35,6 +35,6 @@ class window_base:
 
     def open_map(self):
         path = os.path.dirname(__file__)
-        exec(open(path+'\\map.py').read(), {'bg_cl': self.bg_cl, 'path': path})
+        exec(open(path+'\\map.py').read(), {'bg_cl': self.bg_cl, 'path': path, 'tributes': self.tributes})
 
     
