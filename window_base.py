@@ -16,6 +16,7 @@ class window_base:
     menu = gui.Menu(app)
     day = 1
     time = 'Dia'
+    game_mode = ''
 
 
     def __init__(self):
@@ -23,10 +24,12 @@ class window_base:
         self.st = show_tributes(self)
         self.game = game(self)
         self.mm.exec()
+        self.ws = win_screen(self)
 
         self.menu = gui.Menu(self.app)
         menu_actions = gui.Menu(self.menu, tearoff=0)
         menu_actions.add_command(label='Map', command=self.open_map)
+        menu_actions.add_command(label='Tributes Info', command=self.open_tributes_info)
         self.menu.add_cascade(label='Actions', menu=menu_actions)
 
 
@@ -57,3 +60,8 @@ class window_base:
         else:
             self.time = 'Dia'
             self.day += 1
+
+
+    def open_tributes_info(self):
+        path = os.path.dirname(__file__)
+        exec(open(path+'\\tributes_info.py').read(), {'bg_cl': self.bg_cl, 'path': path, 'tributes': self.tributes}) 

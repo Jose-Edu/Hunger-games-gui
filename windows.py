@@ -39,6 +39,7 @@ class show_tributes:
     def exec(self, game_mode):
 
         self.main.app.config(menu=self.main.menu)
+        self.main.game_mode = game_mode
 
         funcs.tributes_create(game_mode, self.main.tributes)
         self.main.reset_window()
@@ -98,13 +99,17 @@ class game:
         def tributes_actions():
             self.main.reset_window()
             self.tb_ac += 1
-            stuff = self.main.tributes[self.tb_ac].action(event, self.main.time, self.main.tributes)
+            #stuff = self.main.tributes[self.tb_ac].action(event, self.main.time, self.main.tributes)
+            stuff = {'format': '1', 'text': 'Text', 'extra_tributes': ()}
 
             title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
             title.pack()
             subtitile = gui.Label(self.main.frame, text = stuff['text'], foreground='#000', font=('Book Antiqua', 12), background=self.main.bg_cl)
             subtitile.pack()
-            bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
+            if self.tb_ac < 23:
+                bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
+            else:
+                bt_next = gui.Button(self.main.frame, text='Next', command= self.main.mm.exec)
             bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
 
             if stuff['format'] == '1':
@@ -298,7 +303,7 @@ class game:
                 img_label.place(x = 600, y = 450, anchor = 'center')
 
         self.main.reset_window()
-        
+        self.tb_ac = -1
         title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
         if event != '':
@@ -319,3 +324,43 @@ class game:
 
         bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
         bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
+
+
+class win_screen:
+
+    def __init__(self, main):
+        self.main = main
+
+    def exec(self, winner):
+
+        self.main.reset_window()
+        self.main.menu.destroy()
+
+        if self.main.game_mode != 'districts':
+            title = gui.Label(self.main.frame, text=f'{self.main.tributes[winner].name}\né o(a) vencedor(a) do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
+            title.pack()
+
+            img = gui.PhotoImage(file=self.main.tributes[winner].img_200px)
+            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+            img_label.photo = img
+            img_label.place(x = 400, y = 300, anchor = 'center')
+
+            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.mm.exec)
+            bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+        else:
+            title = gui.Label(self.main.frame, text=f'O distrito {winner[2]} é o vencedor do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
+            title.pack()
+
+            img = gui.PhotoImage(file=self.main.tributes[winner[0]].img_200px)
+            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+            img_label.photo = img
+            img_label.place(x = 200, y = 300, anchor = 'center')
+
+            img = gui.PhotoImage(file=self.main.tributes[winner[1]].img_200px)
+            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+            img_label.photo = img
+            img_label.place(x = 600, y = 300, anchor = 'center')
+
+            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.mm.exec)
+            bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+
