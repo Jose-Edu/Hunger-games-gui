@@ -17,6 +17,7 @@ class window_base:
     day = 1
     time = 'Dia'
     game_mode = ''
+    round_deaths = 0
 
 
     def __init__(self):
@@ -25,6 +26,7 @@ class window_base:
         self.game = game(self)
         self.mm.exec()
         self.ws = win_screen(self)
+        self.ts = transition_screen(self)
 
         self.menu = gui.Menu(self.app)
         menu_actions = gui.Menu(self.menu, tearoff=0)

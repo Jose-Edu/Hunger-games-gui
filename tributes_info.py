@@ -6,7 +6,7 @@ def show(tb=0):
     global frame
     frame.destroy()
     frame = gui.Frame(app, background=bg_cl)
-    frame.pack(fill='both', expand='yes')
+    frame.place(x=0,y=0, width=300, height=250)
 
     img = gui.PhotoImage(file=tributes[tb].img_100px)
     img_label = gui.Label(frame, image = img, border = False, borderwidth = 0, background=bg_cl)
@@ -53,19 +53,19 @@ def show(tb=0):
     txt_trait = gui.Label(frame, text = tributes[tb].trait, font = ('Book Antiqua', 8), background=bg_cl)
     txt_trait.place(x=30, y=175)
 
-    bt_show = gui.Button(frame, text='Show', command=lambda:show(int(sb.get())))
-    bt_show.place(x=300,y=300,anchor='se',height=50,width=100)
-
-    sb = gui.Spinbox(frame, from_ = 0, to = 23, wrap=True, state='readonly', )
-    sb.place(x=175, y=300, anchor='s', width=50, height=50)
-
 app = gui.Toplevel()
 app.geometry('300x300')
 app.resizable(False, False)
 app.title('Tributes Info')
-frame = gui.Frame(app)
-frame.configure(background=bg_cl)
-frame.pack(fill='both', expand='yes')
+app.configure(background=bg_cl)
+frame = gui.Frame(app, background=bg_cl)
+frame.place(x=0,y=0, width=300, height=250)
+
+bt_show = gui.Button(app, text='Show', command=lambda:show(int(sb.get())))
+bt_show.place(x=300,y=300,anchor='se',height=50,width=100)
+
+sb = gui.Spinbox(app, from_ = 0, to = 23, wrap=True, state='readonly')
+sb.place(x=175, y=300, anchor='s', width=50, height=50)
 
 show()
 

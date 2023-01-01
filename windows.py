@@ -2,6 +2,7 @@ import tkinter as gui
 from tkinter import ttk as gui_ttk
 import funcs
 import os
+from random import choice
 
 
 class main_menu:
@@ -83,7 +84,7 @@ class show_tributes:
                     gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#228c22').place(x=102+i*200,y=262+c/4*190, width=160, height=20, anchor='center')
                 else:
                     gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#000').place(x=102+i*200,y=262+c/4*190, width=150, height=20, anchor='center')
-        bt_next = gui.Button(frame, text='Next', command=lambda: self.main.game.exec(event='O banho de sangue'), width=20)
+        bt_next = gui.Button(frame, text='Next', command=self.main.game.exec, width=20)
         bt_next.pack(side='bottom')
 
 
@@ -95,7 +96,7 @@ class game:
         self.main = main
 
 
-    def exec(self, event=''):
+    def exec(self, event=None):
         def tributes_actions():
             self.main.reset_window()
             self.tb_ac += 1
@@ -109,7 +110,7 @@ class game:
             if self.tb_ac < 23:
                 bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
             else:
-                bt_next = gui.Button(self.main.frame, text='Next', command= self.main.mm.exec)
+                bt_next = gui.Button(self.main.frame, text='Next', command= self.main.ts.exec)
             bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
 
             if stuff['format'] == '1':
@@ -304,8 +305,23 @@ class game:
 
         self.main.reset_window()
         self.tb_ac = -1
+
         title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
+
+        if event == None:
+            if self.main.day == 1 and self.main.time == 'Dia':
+                event = 'O banho de sangue'
+#            elif self.main.day % 3 == 0 and self.main.time == 'Dia':
+#                event = 'Feast'
+#            elif (self.main.day -1) % 3 != 0 and (self.main.day+1) % 3 == 0:
+#                if choice((True, False)):
+#                    event = 'event' #ph
+#                else:
+#                    event = ''
+            else:
+                event = ''
+
         if event != '':
             subtitile = gui.Label(self.main.frame, text = event, foreground='#000', font=('Arial Black', 22), background=self.main.bg_cl)
             subtitile.pack()
@@ -364,3 +380,33 @@ class win_screen:
             bt_close = gui.Button(self.main.frame, text='Close', command=self.main.mm.exec)
             bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
 
+
+class transition_screen:
+
+    def __init__(self, main):
+        self.main = main
+
+    def exec(self):
+
+        if self.main.round_deaths > 0:
+            self.main.reset_window()        
+            if self.main.time == 'Dia': l = 'o' 
+            else: l = 'a'
+            d = self.main.time.lower()
+            title = gui.Label(self.main.frame, text= f'Fim d{l} {d} {self.main.day}:', font=('Algerian', 48), background=self.main.bg_cl)
+            title.pack()
+
+            if self.main.round_deaths > 1:
+                text = gui.Label(self.main.frame, text=f'{self.main.round_deaths} disparos de canhão podem ser ouvidos à distância', font=('Book Antiqua', 12), background=self.main.bg_cl)
+            else:
+                text = gui.Label(self.main.frame, text=f'{self.main.round_deaths} disparo de canhão pode ser ouvido à distância', font=('Book Antiqua', 12), background=self.main.bg_cl)
+            text.place(x=400, y=300, anchor='center')
+
+            bt_next = gui.Button(self.main.frame, text= 'Next', command= lambda: self.main.st.exec(self.main.game_mode))
+            bt_next.place(x=400, y=600, anchor='s', width=100, height=50)
+
+            self.main.day_update()
+
+        else:
+            self.main.day_update()
+            self.main.st.exec(self.main.game_mode)
