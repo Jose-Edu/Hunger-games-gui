@@ -61,10 +61,10 @@ app.configure(background=bg_cl)
 frame = gui.Frame(app, background=bg_cl)
 frame.place(x=0,y=0, width=300, height=250)
 
-bt_show = gui.Button(app, text='Show', command=lambda:show(int(sb.get())))
+bt_show = gui.Button(app, text='Show', command=lambda:show(int(sb.get())-1))
 bt_show.place(x=300,y=300,anchor='se',height=50,width=100)
 
-sb = gui.Spinbox(app, from_ = 0, to = 23, wrap=True, state='readonly')
+sb = gui.Spinbox(app, from_ = 1, to = 24, wrap=True, state='readonly')
 sb.place(x=175, y=300, anchor='s', width=50, height=50)
 
 show()

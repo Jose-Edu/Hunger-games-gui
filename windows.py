@@ -100,208 +100,263 @@ class game:
         def tributes_actions():
             self.main.reset_window()
             self.tb_ac += 1
-            #stuff = self.main.tributes[self.tb_ac].action(event, self.main.time, self.main.tributes)
-            stuff = {'format': '1', 'text': 'Text', 'extra_tributes': ()}
 
-            title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
-            title.pack()
-            subtitile = gui.Label(self.main.frame, text = stuff['text'], foreground='#000', font=('Book Antiqua', 12), background=self.main.bg_cl)
-            subtitile.pack()
-            if self.tb_ac < 23:
-                bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
+            while self.tb_ac < 24:
+                if self.main.tributes[self.tb_ac].vigour < 1:
+                    self.tb_ac += 1
+                else:
+                    break
+            
+            if self.tb_ac == 24:
+                self.main.ts.exec()
+
             else:
-                bt_next = gui.Button(self.main.frame, text='Next', command= self.main.ts.exec)
-            bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
+                stuff = self.main.tributes[self.tb_ac].action(event, self.main)
+                #stuff = {'format': '1', 'text': 'Text', 'extra_tributes': ()}
 
-            if stuff['format'] == '1':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 400, y = 300, anchor = 'center')
+                title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
+                title.pack()
+                subtitile = gui.Label(self.main.frame, text = stuff['text'], foreground='#000', font=('Book Antiqua', 12), background=self.main.bg_cl)
+                subtitile.pack()
 
-            if stuff['format'] == '2':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
+                if self.main.game_mode != "districts" and self.main.tributes_count() == 1:
+                    for c in range(0, 24):
+                        if self.main.tributes[c].vigour > 0:
+                            winner = c
+                            break
+                    bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(winner))
+                elif self.main.tributes_count() < 3 and self.main.game_mode == 'districts':
+                    if self.main.tributes_count() == 1:
+                        for c in range(0, 24):
+                            if self.main.tributes[c].vigour > 0:
+                                winner = c+1
+                                break
+                        if winner % 2 != 0:
+                            dist = int((winner)/2)
+                        else:
+                            dist = int((winner+1)/2)
+                        
+                        r = []
+                        if winner % 2 != 0:
+                            r.append(winner-1)
+                            r.append(winner)
+                        else:
+                            r.append(winner)
+                            r.append(winner+1)
+                        r.append(dist)
+                        bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(r))
+                    else:
+                        tbs = []
+                        for c in range(0, 24):
+                            if self.main.tributes[c].vigour > 0:
+                                tbs.append(c)
+                        if tbs[1] == tbs[0] + 1:
+                            dist = int((tbs[1]+1)/2)
+                            r = (tbs[0], tbs[1], dist)
+                            bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(r))
+                        else:
+                            if self.tb_ac < 23:
+                                bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
+                            else:
+                                bt_next = gui.Button(self.main.frame, text='Next', command=self.main.ts.exec)
+                elif self.main.tributes_count() == 0:
+                    bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(-1))
+                else:
+                    if self.tb_ac < 23:
+                        bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
+                    else:
+                        bt_next = gui.Button(self.main.frame, text='Next', command=self.main.ts.exec)
+                bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes']].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
+                if stuff['format'] == '1':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 400, y = 300, anchor = 'center')
 
-            if stuff['format'] == '3':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 150, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 400, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 650, y = 300, anchor = 'center')
+                if stuff['format'] == '2':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
 
-            if stuff['format'] == '2x2':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 400, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes']].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 400, anchor = 'center')
+                if stuff['format'] == '3':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 150, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 400, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 650, y = 300, anchor = 'center')
 
-            if stuff['format'] == '2x1':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 400, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
-            
-            if stuff['format'] == '1x2':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
+                if stuff['format'] == '2x2':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 400, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 400, anchor = 'center')
-            
-            if stuff['format'] == '3x1':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 450, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 400, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
-            
-            if stuff['format'] == '1x3':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
+                if stuff['format'] == '2x1':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 400, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
+                
+                if stuff['format'] == '1x2':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 450, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 400, anchor = 'center')
+                
+                if stuff['format'] == '3x1':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 450, anchor = 'center')
 
-            if stuff['format'] == '3x2':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 450, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
+                
+                if stuff['format'] == '1x3':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 400, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 450, anchor = 'center')
 
-            if stuff['format'] == '2x3':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 200, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 400, anchor = 'center')
+                if stuff['format'] == '3x2':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 450, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 450, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 400, anchor = 'center')
 
-            if stuff['format'] == '3x3':
-                img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 200, y = 450, anchor = 'center')
+                if stuff['format'] == '2x3':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 200, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 400, anchor = 'center')
 
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 150, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 300, anchor = 'center')
-                img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][4]].img_100px)
-                img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
-                img_label.photo = img
-                img_label.place(x = 600, y = 450, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 450, anchor = 'center')
+
+                if stuff['format'] == '3x3':
+                    img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 200, y = 450, anchor = 'center')
+
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 150, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 300, anchor = 'center')
+                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][4]].img_100px)
+                    img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
+                    img_label.photo = img
+                    img_label.place(x = 600, y = 450, anchor = 'center')
 
         self.main.reset_window()
         self.tb_ac = -1
@@ -334,7 +389,7 @@ class game:
             text = 'Os tributos sobem em seus pódios e a buzina soa'
         else:
             text = ''
-        
+
         text_label = gui.Label(self.main.frame, text=text, foreground='#000', font=('Book Antiqua', 14), background=self.main.bg_cl)
         text_label.place(x = 400, y = 300, anchor='center')
 
@@ -352,33 +407,41 @@ class win_screen:
         self.main.reset_window()
         self.main.menu.destroy()
 
-        if self.main.game_mode != 'districts':
-            title = gui.Label(self.main.frame, text=f'{self.main.tributes[winner].name}\né o(a) vencedor(a) do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
+        if winner == -1:
+            title = gui.Label(self.main.frame, text='O Hunger Games terminou em empate!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
             title.pack()
 
-            img = gui.PhotoImage(file=self.main.tributes[winner].img_200px)
-            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
-            img_label.photo = img
-            img_label.place(x = 400, y = 300, anchor = 'center')
-
-            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.mm.exec)
+            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
             bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+
         else:
-            title = gui.Label(self.main.frame, text=f'O distrito {winner[2]} é o vencedor do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
-            title.pack()
+            if self.main.game_mode != 'districts':
+                title = gui.Label(self.main.frame, text=f'{self.main.tributes[winner].name}\né o(a) vencedor(a) do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
+                title.pack()
 
-            img = gui.PhotoImage(file=self.main.tributes[winner[0]].img_200px)
-            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
-            img_label.photo = img
-            img_label.place(x = 200, y = 300, anchor = 'center')
+                img = gui.PhotoImage(file=self.main.tributes[winner].img_200px)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label.photo = img
+                img_label.place(x = 400, y = 300, anchor = 'center')
 
-            img = gui.PhotoImage(file=self.main.tributes[winner[1]].img_200px)
-            img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
-            img_label.photo = img
-            img_label.place(x = 600, y = 300, anchor = 'center')
+                bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
+                bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+            else:
+                title = gui.Label(self.main.frame, text=f'O distrito {winner[2]} é o vencedor do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
+                title.pack()
 
-            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.mm.exec)
-            bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+                img = gui.PhotoImage(file=self.main.tributes[winner[0]].img_200px)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label.photo = img
+                img_label.place(x = 200, y = 300, anchor = 'center')
+
+                img = gui.PhotoImage(file=self.main.tributes[winner[1]].img_200px)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label.photo = img
+                img_label.place(x = 600, y = 300, anchor = 'center')
+
+                bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
+                bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
 
 
 class transition_screen:
@@ -388,8 +451,9 @@ class transition_screen:
 
     def exec(self):
 
-        if self.main.round_deaths > 0:
-            self.main.reset_window()        
+        self.main.reset_window()
+
+        if self.main.round_deaths > 0:      
             if self.main.time == 'Dia': l = 'o' 
             else: l = 'a'
             d = self.main.time.lower()

@@ -30,3 +30,11 @@ class tribute:
                 self.relation[self.id+1] = 100
             else:
                 self.relation[self.id-1] = 100
+
+    def action(self, event, main):
+        if choice((True, False)):
+            return {'format': '1', 'text': f'{self.name} sobreviveu', 'extra_tributes': ()}
+        else:
+            self.vigour = 0
+            main.round_deaths += 1
+            return {'format': '1', 'text': f'{self.name} morreu', 'extra_tributes': ()}

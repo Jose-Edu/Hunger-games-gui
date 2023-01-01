@@ -28,6 +28,13 @@ class window_base:
         self.ws = win_screen(self)
         self.ts = transition_screen(self)
 
+        self.tributes = []
+        self.menu = gui.Menu(self.app)
+        self.day = 1
+        self.time = 'Dia'
+        self.game_mode = ''
+        self.round_deaths = 0
+
         self.menu = gui.Menu(self.app)
         menu_actions = gui.Menu(self.menu, tearoff=0)
         menu_actions.add_command(label='Map', command=self.open_map)
@@ -47,11 +54,11 @@ class window_base:
 
 
     def tributes_count(self):
-        t_count = 0
+        t_count = 24
 
         for c in self.tributes:
-            if c.vigour > 0:
-                t_count += 1
+            if c.vigour < 1:
+                t_count -= 1
 
         return t_count
 
@@ -62,6 +69,7 @@ class window_base:
         else:
             self.time = 'Dia'
             self.day += 1
+        self.round_deaths = 0
 
 
     def open_tributes_info(self):
