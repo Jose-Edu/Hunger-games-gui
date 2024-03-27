@@ -102,7 +102,7 @@ class game:
             self.tb_ac += 1
 
             while self.tb_ac < 24:
-                if self.main.tributes[self.tb_ac].vigour < 1:
+                if self.main.tributes[self.tb_ac].vigour < 1 and self.main.tributes[self.tb_ac].actions > 0:
                     self.tb_ac += 1
                 else:
                     break
@@ -132,9 +132,9 @@ class game:
                                 winner = c+1
                                 break
                         if winner % 2 != 0:
-                            dist = int((winner)/2)
-                        else:
                             dist = int((winner+1)/2)
+                        else:
+                            dist = int((winner)/2)
                         
                         r = []
                         if winner % 2 != 0:
@@ -420,7 +420,7 @@ class win_screen:
                 title.pack()
 
                 img = gui.PhotoImage(file=self.main.tributes[winner].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0, background=self.main.bg_cl)
                 img_label.photo = img
                 img_label.place(x = 400, y = 300, anchor = 'center')
 
@@ -431,12 +431,12 @@ class win_screen:
                 title.pack()
 
                 img = gui.PhotoImage(file=self.main.tributes[winner[0]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0, background=self.main.bg_cl)
                 img_label.photo = img
                 img_label.place(x = 200, y = 300, anchor = 'center')
 
                 img = gui.PhotoImage(file=self.main.tributes[winner[1]].img_200px)
-                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0)
+                img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0, background=self.main.bg_cl)
                 img_label.photo = img
                 img_label.place(x = 600, y = 300, anchor = 'center')
 
@@ -474,3 +474,4 @@ class transition_screen:
         else:
             self.main.day_update()
             self.main.st.exec(self.main.game_mode)
+

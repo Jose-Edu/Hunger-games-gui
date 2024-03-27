@@ -1,3 +1,3 @@
 # Hunger games gui
-An HG simulator with GUI in Python!
+An Hanger Games Simlator made with tkinker in Python!
 (wip)
