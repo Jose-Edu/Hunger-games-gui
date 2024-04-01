@@ -1,3 +1,9 @@
+"""
+Arquivo principal do projeto, define a janela e funções básicas e importa o restante do conteúdo.
+Execute este arquivo para inicializar o App.
+"""
+
+
 #Importação das bibliotecas usadas
 import tkinter as gui #Interface gráfica
 from windows import * #Importa as classes referentes às diferentes possíveis telas do programa

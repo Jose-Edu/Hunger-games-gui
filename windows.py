@@ -1,28 +1,39 @@
-import tkinter as gui
-from tkinter import ttk as gui_ttk
-import funcs
-import os
-from random import choice
+"""
+Arquivo que carrega as diferentes telas, dividas por classes, usadas pela windou_base de main.py
+(Doc wip)
+"""
+
+#Importações de bibliotecas e funções
+import tkinter as gui #Interface gráfica
+from tkinter.ttk import Scrollbar #Importa a função de barra de rolagem da interface gráfica
+import funcs #Importa as funções próprias do projeto
+from os.path import dirname #Importa a função usada para a leitura do diretório atual
 
 
+#Configuração da tela de menu principal
 class main_menu:
 
+
+    #Importa o main, permitindo a ligação com a window_base
     def __init__(self, main):
         self.main = main
 
 
+    #Limpa a tela e gera o menu principal
     def exec(self):
         self.main.reset_window()
         
         title = gui.Label(self.main.frame, text = 'Hunger Games GUI', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
+
         bt_solo = gui.Button(self.main.frame, text='Solo', command= lambda: self.main.st.exec('solo'))
         bt_solo.place(width=100,height=50, x = 400, y = 350, anchor='center')
         bt_districts = gui.Button(self.main.frame, text='Districts', command= lambda: self.main.st.exec('districts'))
         bt_districts.place(width=100,height=50, x = 400, y = 450, anchor='center')
         bt_classic = gui.Button(self.main.frame, text='Classic', command= lambda: self.main.st.exec('classic'))
         bt_classic.place(width=100,height=50, x = 400, y = 550, anchor='center')
-        path = os.path.dirname(__file__)
+
+        path = dirname(__file__)
         img = gui.PhotoImage(file=path+'\\images\\common\\logo.png')
         img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
         img_label.photo = img
@@ -31,63 +42,101 @@ class main_menu:
         self.main.world_map = funcs.world_map()
 
 
+#Configuração da tela que mostra os tributos participantes
 class show_tributes:
 
+
+    #Importa o main, permitindo a ligação com a window_base
     def __init__(self, main):
         self.main = main
 
 
+    #Configura as definições básicas do jogo, limpa a tela e cria a tela que mostra os tributos participantes
     def exec(self, game_mode):
 
+        #Definições gerais: Aplica o menu, define o modo de jogo e cria os tributos
         self.main.app.config(menu=self.main.menu)
         self.main.game_mode = game_mode
-
         funcs.tributes_create(game_mode, self.main.tributes)
+
+        #Limpa a tela
         self.main.reset_window()
 
+
+        # region Criação e configuração da barra de rolagem
+        
+        #Cria um canvas dentro do Frame principal
         my_canvas = gui.Canvas(self.main.frame)
         my_canvas.pack(side='left', fill='both', expand='yes')
 
-        scroll = gui_ttk.Scrollbar(self.main.frame, orient='vertical', command=my_canvas.yview)
+        #Cria a barra de rolagem
+        scroll = Scrollbar(self.main.frame, orient='vertical', command=my_canvas.yview)
         scroll.pack(side='right', fill='y')
-        
+
+        #Configura o canvas para usar a barra de rolagem
         my_canvas.configure(yscrollcommand=scroll.set)
         my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion= my_canvas.bbox('all')))
+
+        
+        #Função que faz a barra de rolagem poder ser usada pela roda do mouse
         def _on_mouse_wheel(event):
             try:
                 my_canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
             except:
                 pass
+        
+
+        #Aplica a função no canvas
         my_canvas.bind_all("<MouseWheel>", _on_mouse_wheel)
+
+        #Cria um frame dentro do canvas para ser o conteúdo que seguirá a barra de rolagem
         frame = gui.Frame(my_canvas)
         my_canvas.create_window((0,0), window=frame, anchor='nw', width=800, height=1253)
         frame.configure(background=self.main.bg_cl)
+        # endregion
 
+
+        #Título da página
         title = gui.Label(frame, text = 'Tributes', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
-        for c in range(0, 24, 4):
-            for i in range(0, 4):
-                if game_mode != 'solo' and i % 2 == 0:
-                    if i == 0:
+
+
+        # region Laço para a criação do layout dos tributos, determina a linha
+        for l in range(0, 24, 4): #l = linha atual do laço (de 4 em 4, para acompanhar os tributos)
+
+            #Laço para fazer cada um dos tributos
+            for c in range(0, 4): #c = coluna atual do laço
+
+                #Chega se o jogo está no modo Solo, para criar, ou não, a legenda dos distritos
+                if game_mode != 'solo' and c % 2 == 0:
+                    if c == 0:
                         num = 1
                     else:
                         num = 2
-                    text = gui.Label(frame, text=f'District {int(c/2+num)}', font=('Arial Black', 14), background='#000', foreground='#fff')
-                    text.place(x=52+i*200, y=115+c/4*190, width=300)
+                    text = gui.Label(frame, text=f'District {int(l/2+num)}', font=('Arial Black', 14), background='#000', foreground='#fff')
+                    text.place(x=52+c*200, y=115+l/4*190, width=300)
                 
-                img = gui.PhotoImage(file=self.main.tributes[c+i].img_100px)
+                #Aplica a imagem do tributo atual do laço
+                img = gui.PhotoImage(file=self.main.tributes[l+c].img_100px)
                 img_label = gui.Label(frame, image=img, background=self.main.bg_cl)
                 img_label.photo = img
-                img_label.place(x=50+i*200,y=150+c/4*190)
+                img_label.place(x=50+c*200,y=150+l/4*190)
 
-                if self.main.tributes[c+i].vigour > 0:
-                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#228c22').place(x=102+i*200,y=262+c/4*190, width=160, height=20, anchor='center')
+                #Escreve o nome do tributo atual do laço
+                if self.main.tributes[l+c].vigour > 0: #Caso esteja vivo, a cor do texto é verde
+                    cl = '#228c22'
                 else:
-                    gui.Label(frame, text=self.main.tributes[c+i].name, font=('Arial Black', 10), background='#fff', foreground='#000').place(x=102+i*200,y=262+c/4*190, width=150, height=20, anchor='center')
+                    cl = '#000' #Caso esteja morto, a cor do texto é preto
+                gui.Label(frame, text=self.main.tributes[l+c].name, font=('Arial Black', 10), background='#fff', foreground=cl).place(x=102+c*200,y=262+l/4*190, width=160, height=20, anchor='center')
+        # endregion
+        
+        
+        #Botão 'Next' que leva para a tela de simulação
         bt_next = gui.Button(frame, text='Next', command=self.main.game.exec, width=20)
         bt_next.pack(side='bottom')
 
 
+#Configuração da tela de simulação (doc wip, content wip)
 class game:
 
     tb_ac = -1
@@ -397,39 +446,61 @@ class game:
         bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
 
 
+#Configuração da tela final de vitória ou empate
 class win_screen:
 
+    #Importa o main, permitindo a ligação com a window_base
     def __init__(self, main):
         self.main = main
 
+
+    #Limpa a tela, fecha o menu e mostra o resultado final da simulação
     def exec(self, winner):
 
+        #Limpa a tela e destrói o menu
         self.main.reset_window()
         self.main.menu.destroy()
 
-        if winner == -1:
+        # region Tela de empate
+        if winner == -1: #Se não houver vencedor
+
+            #Título
             title = gui.Label(self.main.frame, text='O Hunger Games terminou em empate!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
             title.pack()
 
-            bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
-            bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+            #Botão 'Return' que reinicia o programa
+            bt_return = gui.Button(self.main.frame, text='Return', command=self.main.__init__)
+            bt_return.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+        # endregion
 
-        else:
-            if self.main.game_mode != 'districts':
+        # region Tela de vitória
+        else: #Caso haja um vencedor ou distrito vencedor
+            
+            #Tela de vencedor individual
+            if self.main.game_mode != 'districts': #Se o modo de jogo não for de distritos
+
+                #Título
                 title = gui.Label(self.main.frame, text=f'{self.main.tributes[winner].name}\né o(a) vencedor(a) do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
                 title.pack()
 
+                #Imagem do Tributo
                 img = gui.PhotoImage(file=self.main.tributes[winner].img_200px)
                 img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0, background=self.main.bg_cl)
                 img_label.photo = img
                 img_label.place(x = 400, y = 300, anchor = 'center')
 
-                bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
-                bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
-            else:
+                #Botão "Return" que reinicia o programa
+                bt_return = gui.Button(self.main.frame, text='Return', command=self.main.__init__)
+                bt_return.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+
+            #Tela de distrito vencedor
+            else: #Se o modo de jogo for de distritos
+                
+                #Título
                 title = gui.Label(self.main.frame, text=f'O distrito {winner[2]} é o vencedor do Hunger Games!', font=('Algerian', 22), foreground= '#000', background=self.main.bg_cl)
                 title.pack()
 
+                #Imagens dos dois tributos
                 img = gui.PhotoImage(file=self.main.tributes[winner[0]].img_200px)
                 img_label = gui.Label(self.main.frame, image=img, border=False, borderwidth=0, background=self.main.bg_cl)
                 img_label.photo = img
@@ -440,10 +511,13 @@ class win_screen:
                 img_label.photo = img
                 img_label.place(x = 600, y = 300, anchor = 'center')
 
-                bt_close = gui.Button(self.main.frame, text='Close', command=self.main.__init__)
-                bt_close.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+                #Botão "Return" que reinicia o programa
+                bt_return = gui.Button(self.main.frame, text='Return', command=self.main.__init__)
+                bt_return.place(x = 400, y = 550, anchor = 'center', width = 100, height = 50)
+        # endregion
 
 
+#Configuração da tela de transição (doc wip)
 class transition_screen:
 
     def __init__(self, main):
