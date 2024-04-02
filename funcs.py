@@ -1,10 +1,21 @@
-import shutil, os
-from PIL import Image
-from tribute_class import tribute
-import random
+"""
+Arquivo que definine funções próprias do projeto.
+(Doc wip) 
+"""
+
+
+#Importações das bibliotecas e funções usadas
+import os #Biblioteca usada para fuções operacionais (Manipular pastas e arquivos)
+from shutil import copy #Importa a função de copiar arquivos para outro diretório
+from PIL import Image #Importa a função de manipular imagens
+from tribute_class import tribute #Importa a classe que define os tributos
+from random import randint, choice #Importa as funções aleatórias de: número inteiro aleatório e escolha aleatória
 
 
 def repeat(value, number):
+
+    """Função que cria uma lista que repete o valor "value" "number" vezes. Retorna a lista."""
+
     l = []
     for c in range(0, number):
         l.append(value)
@@ -13,16 +24,20 @@ def repeat(value, number):
 
 def world_map():
 
-    #m = montanha
-    #f = feast
-    #mr montanha com rio
-    #ff = floresta fria
-    #ffr = floresta fria com rio
-    #plr = planicie com rio
-    #fqr = floresta quente com rio
-    #d = deserto
-    #p = pântano
-    #pl = planicie
+    """
+    Função que define retorna a matriz de biomas do mapa do jogo.\n
+    Legenda dos biomas:
+    * m = montanha;
+    * f = feast;
+    * mr montanha com rio;
+    * ff = floresta fria;
+    * ffr = floresta fria com rio;
+    * plr = planicie com rio;
+    * fqr = floresta quente com rio;
+    * d = deserto;
+    * p = pântano;
+    * pl = planicie.
+    """
 
     m = []
     for c in range(0, 7):
@@ -43,44 +58,58 @@ def world_map():
 
 
 def images_set():
+
+    """
+    
+    """
+
+    #Armazena o caminho do arquivo na variável path
     path = os.path.dirname(__file__)
+
     formats = {'25': [], '100': [], '200': []}
+
+    #Caso ainda não exista, cria as pastas de imagens temporárias
     if not os.path.exists(path+'\\images\\temp'):
         os.mkdir(path+'\\images\\temp')
         os.mkdir(path+'\\images\\temp\\25px')
         os.mkdir(path+'\\images\\temp\\100px')
         os.mkdir(path+'\\images\\temp\\200px')
 
-    for r in ('25', '100', '200'):
-        for c in range(1, 25):
-            origin = path+f'\\images\\tributes\\{c}'
-            destiny = path+f'\\images\\temp\\{r}px\\{c}'
-            for t in ('.png', '.jpg', '.jpeg', '.gif'):
-                if os.path.exists(origin+t):
+
+    for c in range(1, 25):
+        origin = path+f'\\images\\tributes\\{c}'
+        for t in ('.png', '.jpg', '.jpeg', '.gif'):
+            if os.path.exists(origin+t):
+                for size in ('25', '100', '200'):
                     origin += t
-                    destiny += t
-                    print(origin)
-                    print(destiny)
-                    formats[r].append(t)
-                    break
-            try:
-                shutil.copy(origin, destiny)
-            except:
-                origin = path+f'\\images\\common\\t{r}px.gif'
-                destiny += t
-                formats[r].append('.gif')
-                shutil.copy(origin, destiny)
-            img = Image.open(destiny)
-            _img = img.resize((int(r), int(r)))
-            _img.save(destiny)
-    for r in ('25', '100', '200'):
+                    destiny = path+f'\\images\\temp\\{size}px\\{c}{t}'
+                    formats[size].append(t)
+                break
+
+        try:
+            for size in ('25', '100', '200'):
+                copy(origin, destiny)
+                img = Image.open(destiny)
+                _img = img.resize((int(size), int(size)))
+                _img.save(destiny)
+        except:
+            for size in ('25', '100', '200'):
+                origin = path+f'\\images\\common\\t{size}px.gif'
+                destiny = path+f'\\images\\temp\\{size}px\\{c}.gif'
+                formats[size].append('.gif')
+                copy(origin, destiny)
+                img = Image.open(destiny)
+                _img = img.resize((int(size), int(size)))
+                _img.save(destiny)
+
+    for size in ('25', '100', '200'):
         for c in range(1, 25):
-            if formats[r][c-1] != '.png' and formats[r][c-1] != '.gif':
-                p = path+f'\\images\\temp\\{r}px\\{c}{formats[r][c-1]}'
+            if formats[size][c-1] not in ('.png', '.gif'):
+                p = path+f'\\images\\temp\\{size}px\\{c}{formats[size][c-1]}'
                 i = Image.open(p)
-                i.save(path+f'\\images\\temp\\{r}px\\{c}.png')
+                i.save(path+f'\\images\\temp\\{size}px\\{c}.png')
                 os.remove(p)
-                formats[r][c-1] = '.png'
+                formats[size][c-1] = '.png'
     return formats
 
 
@@ -164,7 +193,7 @@ def closest_biome(biome, locate):
         if get_distance(locate, b) < get_distance(locate, ctrl):
             ctrl = b
         elif get_distance(locate, b) == get_distance(locate, ctrl):
-            ctrl = random.choice((ctrl, b))
+            ctrl = choice((ctrl, b))
     return ctrl
 
 
@@ -190,7 +219,7 @@ def get_item(inv):
         it = []
         for c in items.keys():
             it.append(c)
-        it = random.choice(it)
+        it = choice(it)
         if it not in inv[items[it]['type']] or it in ('Explosivo', 'Veneno', 'Kit médico', 'Kit de suprimentos'): break
     it = items[it]
     return it
@@ -204,7 +233,7 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
             if r == 40:
                 r = 0
                 distance+=1
-            t = random.randint(0, 23)
+            t = randint(0, 23)
             if _tributes[t].vigour > 0 and t != _self and distance >= get_distance(_tributes[_self].location, _tributes[t].location) and t not in exceptions: break
 
         return t
@@ -215,7 +244,7 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
                 if _tributes[_self].relation[c] >= 50:
                     t.append(c)
         try:
-            return random.choice(t)
+            return choice(t)
         except:
             return find_tribute(_tributes, _self, 'random', distance)
     elif mode == 'e':
@@ -225,7 +254,7 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
                 if _tributes[_self].relation[c] < 50:
                     t.append(c)
         try:
-            return random.choice(t)
+            return choice(t)
         except:
             return find_tribute(_tributes, _self, 'random', distance)
     elif mode == 'bf':
@@ -235,7 +264,7 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
                 if _tributes[_self].relation[c] > _tributes[_self].relation[t]:
                     t = c
                 elif _tributes[_self].relation[c] == _tributes[_self].relation[t]:
-                    t = random.choice((t, c))
+                    t = choice((t, c))
         return t
     elif mode == 'we':
         t = 0
@@ -244,5 +273,5 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
                 if _tributes[_self].relation[c] < _tributes[_self].relation[t]:
                     t = c
                 elif _tributes[_self].relation[c] == _tributes[_self].relation[t]:
-                    t = random.choice((t, c))
+                    t = choice((t, c))
         return t

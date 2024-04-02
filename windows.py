@@ -3,7 +3,7 @@ Arquivo que carrega as diferentes telas, dividas por classes, usadas pela windou
 (Doc wip)
 """
 
-#Importações de bibliotecas e funções
+#Importações de bibliotecas e funções usadas
 import tkinter as gui #Interface gráfica
 from tkinter.ttk import Scrollbar #Importa a função de barra de rolagem da interface gráfica
 import funcs #Importa as funções próprias do projeto

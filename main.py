@@ -4,16 +4,17 @@ Execute este arquivo para inicializar o App.
 """
 
 
-#Importação das bibliotecas usadas
+#Importação das bibliotecas e funções usadas
 import tkinter as gui #Interface gráfica
 from windows import * #Importa as classes referentes às diferentes possíveis telas do programa
 from os.path import dirname #Importa a função usada para a leitura do diretório atual
 
 
-#Cria a classe base do projeto
 class window_base:
 
-    #Configurações básicas da janela: Tamanho, título, ícone e etc.
+    """Cria a classe base do projeto."""
+
+    #Configurações básicas da janela do programa: Tamanho, título, ícone e etc.
     app = gui.Tk()
     app.title('Hunger Games GUI')
     app.iconbitmap('images//common//ico.ico')
@@ -25,8 +26,16 @@ class window_base:
     menu = gui.Menu(app)
 
 
-    #Configurações de inicialização init
     def __init__(self):
+
+        """
+        Classe base do projeto.\n\n
+        Configurações de inicialização:
+            * Define a janela do programa;
+            * Importa telas;
+            * Declara variáveis de controle;
+            * Cria o menu.
+        """
 
         #Importação das diferentes telas
         self.mm = main_menu(self)
@@ -44,7 +53,7 @@ class window_base:
         self.game_mode = ''
         self.round_deaths = 0
 
-        #Criação do menu de visão aprimorada
+        #Criação do menu
         self.menu = gui.Menu(self.app)
         menu_actions = gui.Menu(self.menu, tearoff=0)
         menu_actions.add_command(label='Map', command=self.open_map)
@@ -52,26 +61,35 @@ class window_base:
         self.menu.add_cascade(label='Actions', menu=menu_actions)
 
 
-    #Função que limpa a tela do programa, destruindo o Frame atual e criando um novo
     def reset_window(self):
+
+        """Função que limpa a tela do programa, destruindo o Frame atual e criando um novo."""
+
         self.frame.destroy()
         self.frame = gui.Frame(self.app, background=self.bg_cl)
         self.frame.pack(fill='both', expand='yes')
 
 
-    #Função que abre a tela secundária do mapa
     def open_map(self):
+
+        """Função que abre a tela secundária do mapa."""
+
         path = dirname(__file__)
         exec(open(path+'\\map.py').read(), {'bg_cl': self.bg_cl, 'path': path, 'tributes': self.tributes})
 
-    #Função que abre a tela secundária das informações dos tributos
+
     def open_tributes_info(self):
+
+        """Função que abre a tela secundária das informações dos tributos."""
+
         path = dirname(__file__)
         exec(open(path+'\\tributes_info.py').read(), {'bg_cl': self.bg_cl, 'path': path, 'tributes': self.tributes}) 
 
 
-    #Função que retorna o número atual de tributos restantes no jogo
     def tributes_count(self):
+        
+        """Função que retorna o número atual de tributos restantes no jogo."""
+
         t_count = 24
 
         for c in self.tributes:
@@ -81,8 +99,10 @@ class window_base:
         return t_count
 
 
-    #Função que atualiza o horário e, consequentemente, o contador de dias. Redefine as configurações para o próximo dia.
     def day_update(self):
+        
+        """Função que atualiza o horário e, consequentemente, o contador de dias.\n\nRedefine as configurações para o próximo dia."""
+
         if self.time == 'Dia':
             self.time = 'Noite'
         else:
