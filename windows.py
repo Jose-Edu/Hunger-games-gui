@@ -517,34 +517,39 @@ class win_screen:
         # endregion
 
 
-#Configuração da tela de transição (doc wip)
+#Configuração da tela de transição
 class transition_screen:
 
+    #Importa o main, permitindo a ligação com a window_base
     def __init__(self, main):
         self.main = main
 
+
+    #Limpa a tela e mostrar a mensagem de fim de dia e contador de mortes (se houver mortes)
     def exec(self):
 
+        #Limpa a tela
         self.main.reset_window()
 
-        if self.main.round_deaths > 0:      
-            if self.main.time == 'Dia': l = 'o' 
-            else: l = 'a'
-            d = self.main.time.lower()
-            title = gui.Label(self.main.frame, text= f'Fim d{l} {d} {self.main.day}:', font=('Algerian', 48), background=self.main.bg_cl)
+        #Se houver mortes no dia, cria a tela
+        if self.main.round_deaths > 0:
+            
+            #Título
+            title = gui.Label(self.main.frame, text= f'Fim do(a) {self.main.time.lower()} {self.main.day}:', font=('Algerian', 48), background=self.main.bg_cl)
             title.pack()
 
-            if self.main.round_deaths > 1:
-                text = gui.Label(self.main.frame, text=f'{self.main.round_deaths} disparos de canhão podem ser ouvidos à distância', font=('Book Antiqua', 12), background=self.main.bg_cl)
-            else:
-                text = gui.Label(self.main.frame, text=f'{self.main.round_deaths} disparo de canhão pode ser ouvido à distância', font=('Book Antiqua', 12), background=self.main.bg_cl)
+            #Texto do contador de mortes
+            text = gui.Label(self.main.frame, text=f'{self.main.round_deaths} disparo(s) de canhão pode(m) ser ouvidos à distância', font=('Book Antiqua', 12), background=self.main.bg_cl)
             text.place(x=400, y=300, anchor='center')
 
+            #Botão "Next" que leva para a tela de mostrar os tributos
             bt_next = gui.Button(self.main.frame, text= 'Next', command= lambda: self.main.st.exec(self.main.game_mode))
             bt_next.place(x=400, y=600, anchor='s', width=100, height=50)
 
+            #Executa o Day_update()
             self.main.day_update()
 
+        #Se não houver mortes, pula a tela de transição
         else:
             self.main.day_update()
             self.main.st.exec(self.main.game_mode)
