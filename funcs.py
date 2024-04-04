@@ -1,6 +1,5 @@
 """
 Arquivo que definine funções próprias do projeto.
-(Doc wip) 
 """
 
 
@@ -198,51 +197,85 @@ def get_biome_locate(biomes):
 
 
 def get_distance(dis1, dis2):
-    moves = 0
-    c1 = []
-    c1.append(dis1[0])
-    c1.append(dis1[1])
-    c2 = dis2
 
-    while c1[0] != c2[0] or c1[1] != c2[1]:
+    """Função que retorna o número de movimentos nescessário para ir de dis1 a dis2 no mapa."""
+
+    #Criação de variáveis de controle
+    moves = 0 #Variável que controla o número de movimentos
+    d1 = dis1 #lista que armazena os pontos x e y do ponto de partida
+    d2 = dis2 #lista que armazena os pontos x e y do ponto de destino
+
+    #Laço principal, vai transformando de movimento em movimento o d1 em d2
+    while d1[0] != d2[0] or d1[1] != d2[1]: #Mantem o laço enquanto d1 != d2
+
+        #Contabiliza os movimentos a cada repetição do laço
         moves += 1
-        if c1[0] == c2[0]:
-            if c1[1] > c2[1]:
-                c1[1] -= 1
+
+        #Bloco que checa em quais direções devem ser feitos os movimentos
+        if d1[0] == d2[0]:
+
+            if d1[1] > d2[1]:
+                d1[1] -= 1
             else:
-                c1[1] += 1
-        elif c1[1] == c2[1]:
-            if c1[0] > c2[0]:
-                c1[0] -= 1
+                d1[1] += 1
+
+        elif d1[1] == d2[1]:
+
+            if d1[0] > d2[0]:
+                d1[0] -= 1
             else:
-                c1[0] += 1
-        elif c1[0] > c2[0]:
-            c1[0] -= 1
-            if c1[1] > c2[1]:
-                c1[1] -= 1
+                d1[0] += 1
+
+        elif d1[0] > d2[0]:
+
+            d1[0] -= 1
+
+            if d1[1] > d2[1]:
+                d1[1] -= 1
             else:
-                c1[1] += 1
+                d1[1] += 1
+
         else:
-            c1[0] += 1
-            if c1[1] > c2[1]:
-                c1[1] -= 1
+
+            d1[0] += 1
+
+            if d1[1] > d2[1]:
+                d1[1] -= 1
             else:
-                 c1[1] += 1       
+                 d1[1] += 1       
 
     return moves
 
 
 def closest_biome(biome, locate):
+
+    """Função que busca e retorna o ponto do mapa com o bioma: 'biome' que está mais perto do ponto do mapa: 'locate'."""
+
+    #Cria variável de controle que armazena o ponto válido mais próximo
     ctrl = get_biome_locate((biome))[0]
+
+    #Laço que checa todos os pontos do mapa com tal bioma e checa a sua distância.
     for b in get_biome_locate((biome)):
-        if get_distance(locate, b) < get_distance(locate, ctrl):
+
+        if get_distance(locate, b) < get_distance(locate, ctrl): #Se a distância for menor que a de ctrl, ctrl passa a ser essa distância
             ctrl = b
-        elif get_distance(locate, b) == get_distance(locate, ctrl):
+
+        elif get_distance(locate, b) == get_distance(locate, ctrl): #Se houver duas distâncias iguais, a função escolhe uma aleatoriamente
             ctrl = choice((ctrl, b))
+
+    #Retorna a menor distância
     return ctrl
 
 
 def get_item(inv):
+
+    """
+    Função que retorna um item válido para ir para um inventário (inv).\n
+    Itens válidos são aqueles que:
+    * O tributo ainda possui;
+    * Explosivo, Veneno, Kit médico e Kit de suprimentos são válidos mesmo quebrando a regra anterior, pois são acumuláveis.
+    """
+
     items = {}
     items['Facão'] = {'name': 'Facão', 'type': 'weapon', 'power': 30}
     items['Arco e flecha'] = {'name': 'Arco e flecha', 'type': 'weapon', 'power': 50}
@@ -260,19 +293,53 @@ def get_item(inv):
     items['Cantil'] = {'name': 'Cantil', 'type': 'tools'}
     items['Machado'] = {'name': 'Machado', 'type': 'weapon', 'power': 30}
 
-    while True:
-        it = []
-        for c in items.keys():
-            it.append(c)
-        it = choice(it)
+
+    #Cria uma lista com os nomes dos itens
+    keys = []
+    for c in items.keys():
+        keys.append(c)
+
+    #Tenta até 20 vezes escolher um item válido aleatoriamente, se não der certo, adiciona um item acumulável aleatório
+    c = 0
+    while c <= 20:
+        
+        it = choice(keys)
+
         if it not in inv[items[it]['type']] or it in ('Explosivo', 'Veneno', 'Kit médico', 'Kit de suprimentos'): break
-    it = items[it]
-    return it
+        else:
+            c+=1
+    if c < 20:
+        return items[it]
+    else:
+        return items[choice(('Explosivo', 'Veneno', 'Kit médico', 'Kit de suprimentos'))]
 
 
 def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
+
+    """
+    Função que retorna um id de um tributo que entre nos critérios dados nos argumentos.\n
+    * _tributes = Lista que armazena todos tributos;
+    * _self = Id do tributo que está buscando a interação;
+    * mode = Modo de busca, podendedo ser:\n
+        random = Busca um tributo qualquer;\n
+        f = Busca um tributo com boa relação;\n
+        e = Busca um tributo com má relação;\n
+        bf = Busca o tributo com a melhor relação;\n
+        we = Busca o tributo com a pior relação.\n
+    * distance = Distância limite (1-6) do tributo _self para ser considerado válido\n
+        (quando não há nenhum tributo próximo o sufiente, a distância é aumentada no modo random);\n
+    * exceptions = Lista de ids de tributos inválidos.
+    """
+
+    #São tributos válidos aqueles que: estão vivos, não são o _self, estão na distância válida e não estão nas exceções.
+
+
+    #Testa ids aleatórios até achar um tributo válido.
+    #Ao não achar um tributo válido após 40 tentativas, a distância aumenta em 1.
     if mode == 'random':
+
         r = -1
+
         while True:
             r+=1
             if r == 40:
@@ -282,26 +349,43 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
             if _tributes[t].vigour > 0 and t != _self and distance >= get_distance(_tributes[_self].location, _tributes[t].location) and t not in exceptions: break
 
         return t
+    
+
+    #Adiciona todos tributos válidos no qual a relação do _self seja neutra ou positiva (>= 50) a uma lista e um aleatoriamente.
+    #Em caso de erro, entra no modo random com os mesmos parametros.
     if mode == 'f':
         t = []
+
         for c in range(0, 23):
             if _tributes[c].vigour > 0 and c != _self and distance >= get_distance(_tributes[_self].location, _tributes[c].location) and c not in exceptions:
                 if _tributes[_self].relation[c] >= 50:
                     t.append(c)
+        
         try:
             return choice(t)
         except:
-            return find_tribute(_tributes, _self, 'random', distance)
+            return find_tribute(_tributes, _self, 'random', distance, exceptions)
+    
+
+    #Adiciona todos tributos válidos no qual a relação do _self seja neutra ou negativa (<= 50) a uma lista e um aleatoriamente.
+    #Em caso de erro, entra no modo random com os mesmos parametros.
     elif mode == 'e':
         t = []
+
         for c in range(0, 23):
             if _tributes[c].vigour > 0 and c != _self and distance >= get_distance(_tributes[_self].location, _tributes[c].location) and c not in exceptions:
                 if _tributes[_self].relation[c] < 50:
                     t.append(c)
+        
         try:
             return choice(t)
         except:
-            return find_tribute(_tributes, _self, 'random', distance)
+            return find_tribute(_tributes, _self, 'random', distance, exceptions=exceptions)
+        
+
+    #Checa a validade de um tributo, após isso, checa se relação de com _self é melhor que a melhor avaliada até agora, atualizando t.
+    #Em caso de empate de relação, o programa escolhe aleatoriamente.
+    #Caso não haja nenhum outro tributo na distância indicada, reinicia a função com uma distância maior.
     elif mode == 'bf':
         t = 0
         for c in range(0, 23):
@@ -310,7 +394,16 @@ def find_tribute(_tributes, _self, mode='random', distance=6, exceptions=[]):
                     t = c
                 elif _tributes[_self].relation[c] == _tributes[_self].relation[t]:
                     t = choice((t, c))
-        return t
+        if t != 0 or get_distance(_tributes[_self].location, _tributes[0].location) <= distance:
+            return t
+        else:
+            find_tribute(_tributes, _self, mode, distance=distance+1, exceptions=exceptions)
+    
+
+
+    #Checa a validade de um tributo, após isso, checa se relação de com _self é pior que a pior avaliada até agora, atualizando t.
+    #Em caso de empate de relação, o programa escolhe aleatoriamente.
+    #Caso não haja nenhum outro tributo na distância indicada, reinicia a função com uma distância maior.
     elif mode == 'we':
         t = 0
         for c in range(0, 23):
