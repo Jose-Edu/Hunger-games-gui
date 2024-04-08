@@ -1,6 +1,5 @@
 """
 Arquivo que carrega as diferentes telas, dividas por classes, usadas pela windou_base de main.py
-(Doc wip)
 """
 
 #Importações de bibliotecas e funções usadas
@@ -136,289 +135,340 @@ class show_tributes:
         bt_next.pack(side='bottom')
 
 
-#Configuração da tela de simulação (doc wip, content wip)
+#Configuração da tela de simulação
 class game:
 
+    #Variável que controla o id dos tributos, avançando de 1 em 1, passando por todos, assim, permitindo todas as ações
     tb_ac = -1
 
+    #Importa o main, permitindo a ligação com a window_base
     def __init__(self, main):
         self.main = main
 
 
+    #Cria a tela de simulação
     def exec(self, event=None):
+
+
         def tributes_actions():
+
+            """Função que limpa a tela, executa a ação do tributo (tribute[x]).action())\n
+              e cria o layout demostrativo a partir do dicionário de retorno de action()\n
+              É aplicado no botão 'Next' gerado na mesma página e no botão 'Next' da tela show_tributes."""
+
+            #Limpa a tela e avança o tb_ac
             self.main.reset_window()
             self.tb_ac += 1
 
+            #Laço que pula o turno de todos os tributos que já agiram fora de hora ou que estão mortos
             while self.tb_ac < 24:
+
                 if self.main.tributes[self.tb_ac].vigour < 1 and self.main.tributes[self.tb_ac].actions > 0:
                     self.tb_ac += 1
+
                 else:
                     break
             
+            #Checa se o tb_ac chegou ao limite e, se sim, termina a rodada executando a tela de transição. 
             if self.tb_ac == 24:
                 self.main.ts.exec()
 
+            #Se ainda houver tributos para simular, executa o turno
             else:
-                stuff = self.main.tributes[self.tb_ac].action(event, self.main)
-                #stuff = {'format': '1', 'text': 'Text', 'extra_tributes': ()}
 
+                #Simula a ação do tributo atual e armazena o retorno na var turn_print
+                turn_print = self.main.tributes[self.tb_ac].action(event, self.main)
+                #turn_print = {'format': '1', 'text': 'Text', 'extra_tributes': ()}
+
+                #Cria o título e o subtítulo (subtítulo = turn_print['text'])
                 title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
                 title.pack()
-                subtitile = gui.Label(self.main.frame, text = stuff['text'], foreground='#000', font=('Book Antiqua', 12), background=self.main.bg_cl)
+
+                subtitile = gui.Label(self.main.frame, text = turn_print['text'], foreground='#000', font=('Book Antiqua', 12), background=self.main.bg_cl)
                 subtitile.pack()
 
+                # region Definição da próxima tela e do botão do botão 'Next'
+                #Se houver apenas um tributo vivo e o modo de jogo não for por distritos, ele é o vencedor.
+                #Armazena o vencedor na var winner e a função de executar a tela de vitória no botão 'Next'.
                 if self.main.game_mode != "districts" and self.main.tributes_count() == 1:
                     for c in range(0, 24):
                         if self.main.tributes[c].vigour > 0:
                             winner = c
                             break
                     bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(winner))
+                
+                #Se só houver dois tributos vivos e o jogo estiver no modo de distritos, checa possível vitória.
                 elif self.main.tributes_count() < 3 and self.main.game_mode == 'districts':
+
+                    #Se só houver um tributo vivo, busca o distrito vencedor e aplica a execução da tela de vitória no botão 'Next'.
                     if self.main.tributes_count() == 1:
+
+                        #Checa qual o é o tributo vivo
                         for c in range(0, 24):
                             if self.main.tributes[c].vigour > 0:
                                 winner = c+1
                                 break
-                        if winner % 2 != 0:
-                            dist = int((winner+1)/2)
-                        else:
-                            dist = int((winner)/2)
                         
+                        #Checa se o tributo vivo é o primeiro ou segundo do distrito, assim armazenado a ordem e tributos corretos
                         r = []
                         if winner % 2 != 0:
+                            dist = int((winner+1)/2)
                             r.append(winner-1)
                             r.append(winner)
                         else:
+                            dist = int((winner)/2)
                             r.append(winner)
                             r.append(winner+1)
+
                         r.append(dist)
                         bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(r))
+
+                    #Se o jogo ainda não tiver um vencedor, checa se ainda há tributos na rodada, definindo a próxima tela do botão 'Next'.
                     else:
+
                         tbs = []
-                        for c in range(0, 24):
+
+                        for c in range(0, 24): #Checa quais são os tributos vivos
                             if self.main.tributes[c].vigour > 0:
                                 tbs.append(c)
-                        if tbs[1] == tbs[0] + 1:
+                        
+                        if tbs[1] == tbs[0] + 1: #Se for um distrito
                             dist = int((tbs[1]+1)/2)
                             r = (tbs[0], tbs[1], dist)
                             bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(r))
-                        else:
+
+                        else: #Se não, decide se segue as checagens ou se vai para a tela de transição
                             if self.tb_ac < 23:
                                 bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
                             else:
                                 bt_next = gui.Button(self.main.frame, text='Next', command=self.main.ts.exec)
+                
+                #Se não houver nenhum tributo vivo, aplica no botão 'Next' a execução da tela de empate.
                 elif self.main.tributes_count() == 0:
                     bt_next = gui.Button(self.main.frame, text='Next', command=lambda:self.main.ws.exec(-1))
+
+                #Se o jogo ainda não tiver um vencedor, checa se ainda há tributos na rodada, definindo a próxima tela do botão 'Next'.
                 else:
                     if self.tb_ac < 23:
                         bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
                     else:
                         bt_next = gui.Button(self.main.frame, text='Next', command=self.main.ts.exec)
+                
+                #Posiciona o botão que executa a próxima tela
                 bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
+                # endregion
 
-                if stuff['format'] == '1':
+                # region Leitura e execução do layout utilizado (layout = turn_print['format'])
+
+                if turn_print['format'] == '1':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 400, y = 300, anchor = 'center')
 
-                if stuff['format'] == '2':
+                if turn_print['format'] == '2':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes']].img_200px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes']].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
 
-                if stuff['format'] == '3':
+                if turn_print['format'] == '3':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 150, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_200px)
+
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 400, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
+                    
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 650, y = 300, anchor = 'center')
 
-                if stuff['format'] == '2x2':
+                if turn_print['format'] == '2x2':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 400, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 400, anchor = 'center')
 
-                if stuff['format'] == '2x1':
+                if turn_print['format'] == '2x1':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 400, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_200px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
                 
-                if stuff['format'] == '1x2':
+                if turn_print['format'] == '1x2':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 400, anchor = 'center')
                 
-                if stuff['format'] == '3x1':
+                if turn_print['format'] == '3x1':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 450, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_200px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
                 
-                if stuff['format'] == '1x3':
+                if turn_print['format'] == '1x3':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_200px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 450, anchor = 'center')
 
-                if stuff['format'] == '3x2':
+                if turn_print['format'] == '3x2':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 450, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][3]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 400, anchor = 'center')
 
-                if stuff['format'] == '2x3':
+                if turn_print['format'] == '2x3':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 200, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 400, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][3]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 450, anchor = 'center')
 
-                if stuff['format'] == '3x3':
+                if turn_print['format'] == '3x3':
                     img = gui.PhotoImage(file=self.main.tributes[self.tb_ac].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][0]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][0]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][1]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][1]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 200, y = 450, anchor = 'center')
 
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][2]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][2]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 150, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][3]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][3]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 300, anchor = 'center')
-                    img = gui.PhotoImage(file=self.main.tributes[stuff['extra_tributes'][4]].img_100px)
+                    img = gui.PhotoImage(file=self.main.tributes[turn_print['extra_tributes'][4]].img_100px)
                     img_label = gui.Label(self.main.frame, image=img, background=self.main.bg_cl)
                     img_label.photo = img
                     img_label.place(x = 600, y = 450, anchor = 'center')
-
+                
+                # endregion
+        
+        #Limpa a tela e redefine o tb_ac
         self.main.reset_window()
         self.tb_ac = -1
 
+        #Cria o título da página
         title = gui.Label(self.main.frame, text = f'{self.main.time} {self.main.day}:', foreground='#000', font=('Algerian', 48), background=self.main.bg_cl)
         title.pack()
 
+        #Caso não haja um evento predefinido, define o evento (wip)
         if event == None:
             if self.main.day == 1 and self.main.time == 'Dia':
                 event = 'O banho de sangue'
-#            elif self.main.day % 3 == 0 and self.main.time == 'Dia':
+#            elif self.main.day % 3 == 0 and  and not self.main.day % 5 == 0 and self.main.time == 'Dia':
 #                event = 'Feast'
-#            elif (self.main.day -1) % 3 != 0 and (self.main.day+1) % 3 == 0:
+#            elif self.main.day % 5 == 0:
 #                if choice((True, False)):
 #                    event = 'event' #ph
 #                else:
@@ -426,10 +476,12 @@ class game:
             else:
                 event = ''
 
+        #Se o evento não for um dia ou noite padrão, cria um subtítulo com o nome do evento
         if event != '':
             subtitile = gui.Label(self.main.frame, text = event, foreground='#000', font=('Arial Black', 22), background=self.main.bg_cl)
             subtitile.pack()
         
+        #Define o texto mostrado na tela para cada evento
         if event == '' and self.main.time == 'Dia':
             text = 'O dia amanhece normalmente'
         elif event == '':
@@ -439,9 +491,11 @@ class game:
         else:
             text = ''
 
+        #Aplica o texto do evento na tela
         text_label = gui.Label(self.main.frame, text=text, foreground='#000', font=('Book Antiqua', 14), background=self.main.bg_cl)
         text_label.place(x = 400, y = 300, anchor='center')
 
+        #Aplica o botão 'Next' que executa a tela de simulação
         bt_next = gui.Button(self.main.frame, text='Next', command=tributes_actions)
         bt_next.place(x = 400, y = 550, anchor = 'center', width=100, height=50)
 
